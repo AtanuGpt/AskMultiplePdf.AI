@@ -59,7 +59,8 @@ def handle_userinput(user_question):
         else:
             st.write(bot_template.replace(
                 "{{MSG}}", message.content), unsafe_allow_html=True)
-
+            
+#============================================================================================================
 def main():
     load_dotenv()
 
@@ -77,7 +78,7 @@ def main():
 
 
     st.header("Chat with single or multiple PDFs :sparkles:")
-    user_question = st.text_input("Ask a question about your document(s):")
+    user_question = st.chat_input("Ask a question about your document(s):")
     if user_question:
         handle_userinput(user_question)
 
@@ -102,6 +103,6 @@ def main():
                 st.session_state.conversation = get_conversation_chain(vectorstore)
 
 
-
+#============================================================================================================
 if __name__ == '__main__':
     main()
