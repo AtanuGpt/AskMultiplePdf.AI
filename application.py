@@ -79,7 +79,7 @@ def main():
 
     st.header("Chat with single or multiple PDFs :sparkles:")
     user_question = st.chat_input("Ask a question about your document(s):")
-    if user_question:
+    if user_question is not None and user_question != "":
         handle_userinput(user_question)
 
     with st.sidebar:
