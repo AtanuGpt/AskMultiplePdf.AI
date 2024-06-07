@@ -13,14 +13,14 @@ css = '''
   width: 20%;
 }
 .chat-message .avatar img {
-  max-width: 78px;
-  max-height: 78px;
+  max-width: 60px;
+  max-height: 60px;
   border-radius: 50%;
   object-fit: cover;
 }
 .chat-message .message {
   width: 80%;
-  padding: 0 1.5rem;
+  padding: 0 1rem;
   color: #fff;
 }
 '''
