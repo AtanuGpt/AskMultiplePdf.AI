@@ -2,9 +2,9 @@ import streamlit as st
 from dotenv import load_dotenv
 from PyPDF2 import PdfReader
 from langchain.text_splitter import CharacterTextSplitter
-from langchain_community.embeddings import OpenAIEmbeddings
-from langchain_community.vectorstores import FAISS
+from langchain_openai import OpenAIEmbeddings
 from langchain_openai import ChatOpenAI
+from langchain_community.vectorstores import FAISS
 from langchain.memory import ConversationBufferMemory
 from langchain.chains import ConversationalRetrievalChain
 from langchain_core.messages import AIMessage, HumanMessage
@@ -109,9 +109,21 @@ def main():
                 st.write(user_template.replace("{{MSG}}", user_question), unsafe_allow_html=True)
             
             with st.chat_message("AI"):
-                with st.spinner("Please wait ..."):
-                    response = st.session_state.conversation({'question': user_question})
-                    st.write(bot_template.replace("{{MSG}}", response["answer"]), unsafe_allow_html=True)
+                with st.spinner("Fetching data ..."):
+                    response = st.session_state.conversation.invoke({'question': user_question})
+
+                    # Extract answer and relevant links
+                    answer = response["answer"]
+                    sources = response.get("sources", [])
+                    
+                    links = "\n".join([f"[{i+1}] {source['url']}" for i, source in enumerate(sources)])
+
+                    if links == "":
+                        links = "No relevant links found"
+
+                    full_response = f"{answer}\n\n**Relevant links:**\n{links}"
+
+                    st.write(bot_template.replace("{{MSG}}", full_response), unsafe_allow_html=True)
 
             st.session_state.chat_history.append(AIMessage(content=response["answer"]))
 
