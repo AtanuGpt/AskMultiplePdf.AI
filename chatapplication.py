@@ -2,9 +2,9 @@ import streamlit as st
 from dotenv import load_dotenv
 from PyPDF2 import PdfReader
 from langchain.text_splitter import CharacterTextSplitter
-from langchain.embeddings import OpenAIEmbeddings
-from langchain.vectorstores import FAISS
-from langchain.chat_models import ChatOpenAI
+from langchain_community.embeddings import OpenAIEmbeddings
+from langchain_community.vectorstores import FAISS
+from langchain_openai import ChatOpenAI
 from langchain.memory import ConversationBufferMemory
 from langchain.chains import ConversationalRetrievalChain
 from langchain_core.messages import AIMessage, HumanMessage
@@ -74,23 +74,7 @@ def main():
         elif isinstance(message, HumanMessage):
             with st.chat_message("Human"):
                 st.write(user_template.replace("{{MSG}}", message.content), unsafe_allow_html=True)
-
-    user_question = st.chat_input("Ask a question about your document(s):")
-
-    if user_question is not None and user_question != "":
-        st.session_state.chat_history.append(HumanMessage(content=user_question))
-
-        with st.chat_message("Human"):
-            st.write(user_template.replace("{{MSG}}", user_question), unsafe_allow_html=True)
-        
-        with st.chat_message("AI"):
-            with st.spinner("Please wait ..."):
-                response = st.session_state.conversation({'question': user_question})
-                st.write(bot_template.replace("{{MSG}}", response["answer"]), unsafe_allow_html=True)
-
-        st.session_state.chat_history.append(AIMessage(content=response["answer"]))
-
-
+    
     with st.sidebar:
         st.subheader("Your documents")
         pdf_docs = st.file_uploader(
@@ -102,15 +86,36 @@ def main():
                 # get pdf text
                 raw_text = get_pdf_text(pdf_docs)
 
-                 # get the text chunks
+                # get the text chunks
                 text_chunks = get_text_chunks(raw_text)
 
                 # create vector store
                 vectorstore = get_vectorstore(text_chunks)
 
-                 # create conversation chain
+                # create conversation chain
                 st.session_state.conversation = get_conversation_chain(vectorstore)
 
+                # Let the user know its successful
+                st.session_state.isPdfProcessed = "done"
+                st.success("Done!")
+
+    if "isPdfProcessed" in st.session_state:
+        user_question = st.chat_input("Ask a question about your document(s):")
+
+        if user_question is not None and user_question != "":
+            st.session_state.chat_history.append(HumanMessage(content=user_question))
+
+            with st.chat_message("Human"):
+                st.write(user_template.replace("{{MSG}}", user_question), unsafe_allow_html=True)
+            
+            with st.chat_message("AI"):
+                with st.spinner("Please wait ..."):
+                    response = st.session_state.conversation({'question': user_question})
+                    st.write(bot_template.replace("{{MSG}}", response["answer"]), unsafe_allow_html=True)
+
+            st.session_state.chat_history.append(AIMessage(content=response["answer"]))
+
+   
 #============================================================================================================
 if __name__ == '__main__':
     main()
