@@ -117,7 +117,7 @@ def main():
 
                     st.write(bot_template.replace("{{MSG}}", formatted_response), unsafe_allow_html=True)
 
-            st.session_state.chat_history.append(AIMessage(content=answer))
+            st.session_state.chat_history.append(AIMessage(content=formatted_response))
 
    
 #============================================================================================================
