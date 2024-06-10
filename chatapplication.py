@@ -48,7 +48,7 @@ def get_conversation_chain(vectorstore):
     )
 
     return conversation_chain
-            
+
 #============================================================================================================
 if "chat_history" not in st.session_state:
         st.session_state.chat_history = [
@@ -112,20 +112,12 @@ def main():
                 with st.spinner("Fetching data ..."):
                     response = st.session_state.conversation.invoke({'question': user_question})
 
-                    # Extract answer and relevant links
                     answer = response["answer"]
-                    sources = response.get("sources", [])
-                    
-                    links = "\n".join([f"[{i+1}] {source['url']}" for i, source in enumerate(sources)])
+                    formatted_response = answer.replace("\n", "<br />")
 
-                    if links == "":
-                        links = "No relevant links found"
+                    st.write(bot_template.replace("{{MSG}}", formatted_response), unsafe_allow_html=True)
 
-                    full_response = f"{answer}\n\n**Relevant links:**\n{links}"
-
-                    st.write(bot_template.replace("{{MSG}}", full_response), unsafe_allow_html=True)
-
-            st.session_state.chat_history.append(AIMessage(content=response["answer"]))
+            st.session_state.chat_history.append(AIMessage(content=answer))
 
    
 #============================================================================================================
